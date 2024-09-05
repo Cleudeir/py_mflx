@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Movie Cards</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+
+<body>
+    <div class="header">
+        <h1>Movie Cards</h1>
+        <input type="text" id="searchInput" placeholder="Search by title, year, or language...">
+    </div>
+    <div id="container" class="container">
+        <div id="movies" class="movies-container"></div>
+    </div>
+    <div class="pagination" id="pagination"></div>
+
+    <script>
+        // Injecting moviesData from Flask into JavaScript
+        const moviesData = JSON.parse({{ movies | tojson }});
+
+        console.log('moviesData: ', moviesData);
+        
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const searchInput = document.getElementById('searchInput');
+            const moviesContainer = document.getElementById('movies');
+            const paginationContainer = document.getElementById('pagination');
+            let currentPage = 1;
+            const widthScreen = screen.width;
+            const items = Math.ceil(widthScreen / 200 - 1);
+            const itemsPerPage = items * 5;
+
+            searchInput.addEventListener('input', () => {
+                currentPage = 1;
+                renderMovies();
+            });
+
+            // Function to render movies as cards
+            function renderMovies() {
+                moviesContainer.innerHTML = '';
+                const searchTerm = searchInput.value.toLowerCase();
+                const filteredMovies = moviesData.filter(movie =>
+                    movie.title.toLowerCase().includes(searchTerm)
+                );
+
+                const startIndex = (currentPage - 1) * itemsPerPage;
+                const endIndex = startIndex + itemsPerPage;
+                const moviesToDisplay = filteredMovies.slice(startIndex, endIndex);
+
+                // Insert all filtered movie cards
+                moviesToDisplay.forEach(movie => {
+                    const card = document.createElement('div');
+                    card.className = 'card';
+                    card.innerHTML = `
+                        <div class="card-content">
+                            <div class="card-title">${movie.title}</div>
+                            <div class="card-details">
+                                <div>Language: ${movie.language}</div>
+                                <div>Year: ${movie.year}</div>
+                                <div>Resolution: ${movie.resolution}</div>
+                            </div>
+                        </div>
+                    `;
+                    // Redirect on click
+                    card.addEventListener('click', () => {
+                        fetch(`/api/movie?url=${movie.url}`)
+                            .then(response => response.json())
+                            .then(data => {
+                                window.location.href = "https://redecanais.foo" + data.url;
+                            })
+                            .catch(error => console.error('Error fetching movie details:', error));
+                    });
+
+                    // Append the card to the container
+                    moviesContainer.appendChild(card);
+                });
+
+                renderPagination(filteredMovies.length);
+            }
+
+            // Function to render pagination controls
+            function renderPagination(totalItems) {
+                paginationContainer.innerHTML = '';
+                const totalPages = Math.ceil(totalItems / itemsPerPage);
+
+                const createButton = (text, page) => {
+                    const button = document.createElement('button');
+                    button.textContent = text < 10 ? `0${text}` : text;
+                    button.disabled = currentPage === page;
+                    button.addEventListener('click', () => {
+                        currentPage = page;
+                        renderMovies();
+                    });
+                    return button;
+                };
+
+                if (currentPage == 1) {
+                    paginationContainer.appendChild(createButton('Previous', currentPage));
+                }
+
+                if (currentPage > 1) {
+                    paginationContainer.appendChild(createButton('Previous', currentPage - 1));
+                }
+
+                let startPage = Math.max(1, currentPage - Math.floor(items / 2));
+                let endPage = Math.min(totalPages, startPage + items - 1);
+
+                if (endPage - startPage + 1 < items) {
+                    startPage = Math.max(1, endPage - items + 1);
+                }
+
+                for (let i = startPage; i <= endPage; i++) {
+                    paginationContainer.appendChild(createButton(i, i));
+                }
+
+                if (currentPage < totalPages) {
+                    paginationContainer.appendChild(createButton('Next', currentPage + 1));
+                }
+            }
+
+            // Initial render
+            renderMovies();
+        });
+    </script>
+</body>
+
+</html>

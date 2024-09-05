@@ -37,6 +37,6 @@ def extract_iframe_src(html_content):
 
     pattern = r'<iframe name="Player" ="" src="([^"]+)"'
     match = re.search(pattern, html_content)
-    src = match.group(1)
+    src = { "url": match.group(1)}
     # Convert the list of dictionaries to JSON
     return src
