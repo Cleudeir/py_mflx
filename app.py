@@ -11,7 +11,7 @@ CORS(app)
 def get():
     return {'online': 'on'}
 
-@app.route('/web/movies', methods=['GET'])
+@app.route('/movies', methods=['GET'])
 def get_movies():
     movie_info = mapMovie()
     return render_template('movies.html', movies=movie_info)
