@@ -19,11 +19,7 @@
     <div class="pagination" id="pagination"></div>
 
     <script>
-        // Injecting moviesData from Flask into JavaScript
         const moviesData = JSON.parse({{ movies | tojson }});
-
-        console.log('moviesData: ', moviesData);
-        
 
         document.addEventListener('DOMContentLoaded', () => {
             const searchInput = document.getElementById('searchInput');
@@ -31,15 +27,14 @@
             const paginationContainer = document.getElementById('pagination');
             let currentPage = 1;
             const widthScreen = screen.width;
-            const items = Math.ceil(widthScreen / 200 - 1);
-            const itemsPerPage = items * 5;
+            const items = Math.ceil(widthScreen / 200 - 1)  ;
+            const itemsPerPage = items * 2;
 
             searchInput.addEventListener('input', () => {
                 currentPage = 1;
                 renderMovies();
             });
 
-            // Function to render movies as cards
             function renderMovies() {
                 moviesContainer.innerHTML = '';
                 const searchTerm = searchInput.value.toLowerCase();
@@ -51,12 +46,21 @@
                 const endIndex = startIndex + itemsPerPage;
                 const moviesToDisplay = filteredMovies.slice(startIndex, endIndex);
 
-                // Insert all filtered movie cards
                 moviesToDisplay.forEach(movie => {
                     const card = document.createElement('div');
+                    const normalizeName = movie.title.normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/ /g, '');
                     card.className = 'card';
                     card.innerHTML = `
-                        <div class="card-content">
+                        <div class="card-image" style="background-image: url('${getCachedData(normalizeName)?.poster_path || ''}')"></div>                       
+                        <div class="card-overlay">
+                            <div class="card-title">${movie.title}</div>
+                            <div class="card-details">
+                                <div>Language: ${movie.language}</div>
+                                <div>Year: ${movie.year}</div>
+                                <div>Resolution: ${movie.resolution}</div>
+                            </div>
+                        </div>
+                         <div class="card-show">
                             <div class="card-title">${movie.title}</div>
                             <div class="card-details">
                                 <div>Language: ${movie.language}</div>
@@ -65,7 +69,21 @@
                             </div>
                         </div>
                     `;
-                    // Redirect on click
+
+                    const cachedData = getCachedData(normalizeName);
+                        if (!cachedData) {
+                            fetch(`/api/search?type=movie&title=${encodeURIComponent(movie.title)}&year=${movie.year}`)
+                                .then(response => response.json())
+                                .then(data => {
+                                    if(data.error){return}
+                                    cacheData(normalizeName, data);
+                                    updateCardWithData(card, data);
+                                })
+                                .catch(error => console.error('Error fetching movie data:', error));
+                        } else {
+                            updateCardWithData(card, cachedData);
+                        }
+
                     card.addEventListener('click', () => {
                         fetch(`/api/movie?url=${movie.url}`)
                             .then(response => response.json())
@@ -74,15 +92,32 @@
                             })
                             .catch(error => console.error('Error fetching movie details:', error));
                     });
-
-                    // Append the card to the container
+                    
                     moviesContainer.appendChild(card);
                 });
 
                 renderPagination(filteredMovies.length);
             }
 
-            // Function to render pagination controls
+            function updateCardWithData(card, data) {
+                card.querySelector('.card-image').style.backgroundImage = `url(${data.poster_path})`;
+                card.querySelector('.card-details').innerHTML = `
+                    <div>Overview: ${data.overview}</div>
+                    <div>Popularity: ${data.popularity}</div>
+                    <div>Vote Average: ${data.vote_average}</div>
+                    <div>Vote Count: ${data.vote_count}</div>
+                `;
+            }
+
+            function cacheData(key, data) {
+                localStorage.setItem(key, JSON.stringify(data));
+            }
+
+            function getCachedData(key) {
+                const cached = localStorage.getItem(key);              
+                return cached ? JSON.parse(cached) : null;
+            }
+
             function renderPagination(totalItems) {
                 paginationContainer.innerHTML = '';
                 const totalPages = Math.ceil(totalItems / itemsPerPage);
@@ -97,10 +132,6 @@
                     });
                     return button;
                 };
-
-                if (currentPage == 1) {
-                    paginationContainer.appendChild(createButton('Previous', currentPage));
-                }
 
                 if (currentPage > 1) {
                     paginationContainer.appendChild(createButton('Previous', currentPage - 1));
@@ -122,7 +153,6 @@
                 }
             }
 
-            // Initial render
             renderMovies();
         });
     </script>

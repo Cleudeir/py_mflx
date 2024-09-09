@@ -1,6 +1,3 @@
 {
-    "cSpell.words": [
-        "iframe",
-        "jsonify"
-    ]
+  "cSpell.words": ["dotenv", "iframe", "jsonify", "tmdb", "TMDB"]
 }
