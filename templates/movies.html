@@ -19,7 +19,8 @@
     <div class="pagination" id="pagination"></div>
 
     <script>
-        const moviesData = JSON.parse({{ movies | tojson }});
+        const moviesData = {{ movies | tojson }};
+       
 
         document.addEventListener('DOMContentLoaded', () => {
             const searchInput = document.getElementById('searchInput');
