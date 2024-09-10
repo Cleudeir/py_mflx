@@ -219,7 +219,7 @@
 
                     const cachedData = getCachedData(normalizeName);
                     if (!cachedData) {
-                        fetch(`/api/search?type=movie&title=${encodeURIComponent(movie.title)}&year=${movie.year}`)
+                        fetch(`/open/api/search?type=movie&title=${encodeURIComponent(movie.title)}&year=${movie.year}`)
                             .then(response => response.json())
                             .then(data => {
                                 if (data.error) { return }
@@ -232,7 +232,7 @@
                     }
 
                     card.addEventListener('click', () => {
-                        fetch(`/api/movie?url=${movie.url}`)
+                        fetch(`/open/api/movie?url=${movie.url}`)
                             .then(response => response.json())
                             .then(data => {
                                 window.location.href = "https://redecanais.foo" + data.url;
