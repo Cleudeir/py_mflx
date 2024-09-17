@@ -67,8 +67,9 @@ def handle_movie(urlVideo):
     movie_url = baseUrl + urlVideo
     movie_html_content = get_html_content.get_html_content(movie_url)
     iframe_src = extract_movie_info.extract_iframe_src(movie_html_content)
+    iframe_src = { "url": baseUrl + iframe_src['url'] }
     result_json = json.dumps(iframe_src, indent=4)
-    save_content.save_content(name_file, result_json, 'json')        
+    save_content.save_content(name_file, result_json, 'json')
     return iframe_src
 
 def search_tmdb(type, title, year=None):

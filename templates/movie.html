@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Movie Player</title>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: black;
+            position: relative; /* Make sure body is positioned relatively */
+        }
+        iframe {
+            height: 100%;
+            width: 100%;
+            border: none;
+            margin: 0;
+            padding: 0;
+        }
+        .home-button {
+            position: absolute;
+            top: 10px; /* Adjust the position as needed */
+            left: 10px; /* Adjust the position as needed */
+            padding: 10px 20px;
+            background-color: #0c3b6da4;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            display: inline-block; /* Ensure it behaves like a button */
+            text-decoration: none; /* Remove underline from link */
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Optional: Add a shadow for better appearance */
+        }
+        .home-button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+    <script>
+        // Override window.open to prevent opening new tabs or windows
+        window.open = function() {
+            console.log('Blocked window.open attempt');
+            return null;
+        };
+
+        // Block opening new tabs via target="_blank"
+        document.addEventListener('click', function(event) {
+            if (event.target.tagName === 'A' && event.target.target === '_blank') {
+                event.preventDefault();
+                console.log('Blocked target="_blank" link');
+            }
+        });
+    </script>
+</head>
+<body>
+    {% if movie %}
+        <iframe src="{{ movie }}" allowfullscreen></iframe>
+    {% else %}
+        <h1 style="color: white;">No movie URL provided</h1>
+    {% endif %}
+    <a href="/open/movies" class="home-button">Home</a> <!-- Home button -->
+</body>
+</html>

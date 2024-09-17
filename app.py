@@ -18,17 +18,18 @@ def get_movies():
     movie_info = mapMovie()
     return render_template('movies.html', movies=movie_info)
 
-@app.route('/api/clean', methods=['GET'])
-def clean_cache():
-    cleanCache()
-    return 'Cache cleaned'
-@app.route('/api/movie', methods=['GET'])
-def post_movie():
+@app.route('/movie', methods=['GET'])
+def get_teste():
     url = request.args.get('url')
     if not url:
         return jsonify({'error': 'No movie data provided'}), 400
     result = handle_movie(url)
-    return result
+    return render_template('movie.html', movie=result['url'])
+
+@app.route('/api/clean', methods=['GET'])
+def clean_cache():
+    cleanCache()
+    return 'Cache cleaned'
 
 # New endpoint to search for a movie or TV show by title and type
 @app.route('/api/search', methods=['GET'])

@@ -232,12 +232,7 @@
                     }
 
                     card.addEventListener('click', () => {
-                        fetch(`/open/api/movie?url=${movie.url}`)
-                            .then(response => response.json())
-                            .then(data => {
-                                window.location.href = "https://redecanais.foo" + data.url;
-                            })
-                            .catch(error => console.error('Error fetching movie details:', error));
+                         window.location.href = `/open/movie?url=${movie.url}`            
                     });
 
                     moviesContainer.appendChild(card);
