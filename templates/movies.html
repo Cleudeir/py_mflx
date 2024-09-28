@@ -168,7 +168,9 @@
             background-color: #555;
             cursor: not-allowed;
         }
-        .search-container {           
+        .search-container {  
+            margin-left: auto;
+            margin-right: auto;         
             display: flex;
             justify-content: center;
             align-items: center;
@@ -234,7 +236,7 @@
                     const matchesSearch = movie.title.toLowerCase().includes(searchTerm);
                     const matchesYear = selectedYear === '' || movie.year === selectedYear;
                     return matchesSearch && matchesYear;
-                });
+                }).sort((a, b) => b.year - a.year);
 
 
                 const startIndex = (currentPage - 1) * itemsPerPage;
