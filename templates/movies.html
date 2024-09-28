@@ -21,12 +21,23 @@
         }
 
         input[type="text"] {
-            width: 60%;
             max-width: 400px;
             padding: 12px 15px;
             border: none;
             border-radius: 4px;
             margin: 20px auto;
+            display: block;
+            background-color: #333;
+            color: #e5e5e5;
+            text-align: center;
+        }
+
+        select {
+            max-width: 400px;
+            padding: 12px 15px;
+            border: none;
+            border-radius: 4px;
+            margin: 10px auto;
             display: block;
             background-color: #333;
             color: #e5e5e5;
@@ -62,7 +73,13 @@
             cursor: pointer;
             transition: transform 0.3s, box-shadow 0.3s;
         }
-
+        
+        @media screen and (max-width: 480px) {
+            .card{
+                width: 80vw;
+                height: 360px;
+            }            
+        }
         .card-image {
             width: 100%;
             height: 100%;
@@ -134,7 +151,7 @@
         }
 
         .pagination button {
-            padding: 12px 20px;
+            padding: 12px 18px;
             border: none;
             background-color: #333;
             color: #e5e5e5;
@@ -151,13 +168,26 @@
             background-color: #555;
             cursor: not-allowed;
         }
+        .search-container {           
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 20px;
+            width: 360px;
+        }
     </style>
 </head>
 
 <body>
     <div class="header">
         <h1>Movie Cards</h1>
-        <input type="text" id="searchInput" placeholder="Search by title, year, or language...">
+        <div class="search-container">
+            <input type="text" id="searchInput" placeholder="Search by title...">
+            <select id="yearFilter">
+                <option value="">All Years</option>
+            </select>
+            </select>
+        </div>
     </div>
     <div id="container" class="container">
         <div id="movies" class="movies-container"></div>
@@ -171,23 +201,41 @@
         document.addEventListener('DOMContentLoaded', () => {
             const searchInput = document.getElementById('searchInput');
             const moviesContainer = document.getElementById('movies');
+            const yearFilter = document.getElementById('yearFilter');
             const paginationContainer = document.getElementById('pagination');
             let currentPage = 1;
             const widthScreen = screen.width;
             const items = Math.ceil(widthScreen / 200 - 1);
             const itemsPerPage = items * 3;
 
+            const years = [...new Set(moviesData.map(movie => movie.year))].sort((a, b) => b - a);
+            years.forEach(year => {
+                const option = document.createElement('option');
+                option.value = year;
+                option.textContent = year;
+                yearFilter.appendChild(option);
+            });
+
             searchInput.addEventListener('input', () => {
+                currentPage = 1;
+                renderMovies();
+            });
+
+            yearFilter.addEventListener('change', () => {           
                 currentPage = 1;
                 renderMovies();
             });
 
             function renderMovies() {
                 moviesContainer.innerHTML = '';
-                const searchTerm = searchInput.value.toLowerCase();
-                const filteredMovies = moviesData.filter(movie =>
-                    movie.title.toLowerCase().includes(searchTerm)
-                );
+                const searchTerm = searchInput.value.toLowerCase();  
+                const selectedYear = yearFilter.value;
+                const filteredMovies = moviesData.filter(movie => {
+                    const matchesSearch = movie.title.toLowerCase().includes(searchTerm);
+                    const matchesYear = selectedYear === '' || movie.year === selectedYear;
+                    return matchesSearch && matchesYear;
+                });
+
 
                 const startIndex = (currentPage - 1) * itemsPerPage;
                 const endIndex = startIndex + itemsPerPage;
@@ -198,6 +246,7 @@
                     const normalizeName = movie.title.normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/ /g, '');
                     card.className = 'card';
                     card.innerHTML = `
+                    <a href="/open/movie?url=${movie.url}" class="card-link">
                         <div class="card-image" style="background-image: url('${getCachedData(normalizeName)?.poster_path || ''}')"></div>                       
                         <div class="card-overlay">
                             <div class="card-title">${movie.title}</div>
@@ -215,6 +264,7 @@
                                 <div>Resolution: ${movie.resolution}</div>
                             </div>
                         </div>
+                    </a>
                     `;
 
                     const cachedData = getCachedData(normalizeName);
@@ -230,10 +280,6 @@
                     } else {
                         updateCardWithData(card, cachedData);
                     }
-
-                    card.addEventListener('click', () => {
-                         window.location.href = `/open/movie?url=${movie.url}`            
-                    });
 
                     moviesContainer.appendChild(card);
                 });
