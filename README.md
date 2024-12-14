@@ -1,39 +1,73 @@
-## Project Overview
 
-* This project is a Flask web application that fetches movie data from external APIs, processes it, and displays it on a webpage. It leverages caching to improve performance and offers features like movie searching and filtering by year.
+                # map_filme.json                
+                ## project structure
+                ```                    
+                py_mflx/
+    README.md
+    Dockerfile
+    last_update.txt
+    patch.diff
+    requirements.txt
+    app.py
+    docker-compose.yml
+    Python-3.12.5.tar.xz
+    templates/
+        movies.html
+        movie.html
+    src/
+        get_html_content.py
+        clean_text.py
+        save_content.py
+        movie_service.py
+        extract_movie_info.py
+    output/
+        json/
+            map_filme.json
+    Misc/
+        NEWS.d/
+            next/
+                macOS/
+                    2020-06-24-13-51-57.bpo-41100.mcHdc5.rst                
+                ```
+                ## Projeto: Aplicação Web para Busca e Exibição de Filmes
 
-## Dependencies
+### Propósito e Descrição do Projeto
 
-* Before you can start using or working with this project, make sure to install the following dependencies:
-    * Flask
-    * python-dotenv
-    * flask-cors
-    * requests
-    * beautifulsoup4
-    * urllib
-    * re
-    * json
-    * datetime
-    * os
-    * dotenv
+Este projeto desenvolve uma aplicação web que permite buscar e exibir informações de filmes.  Utiliza Flask como backend para processamento de requisições e entrega de dados, provavelmente obtidos de um banco de dados externo de filmes (TMDB). A aplicação inclui cache para melhorar o desempenho e oferece interface HTML básica e API RESTful.  A interface HTML inclui funcionalidades de busca, filtragem por ano e paginação.  Detalhes dos filmes são carregados dinamicamente a partir de uma API.  O projeto também inclui scripts para extração de dados HTML, limpeza de texto e salvamento de conteúdo.
 
-## How to Install
+### Dependências
 
-* To get this project up and running, follow these steps:
-    1. Clone the repository.
-    2. Install the required dependencies using `pip install -r requirements.txt`.
-    3. Create a `.env` file in the root directory and add the following environment variable: `TMDB_API_KEY=your_api_key`. Replace `your_api_key` with your actual TMDb API key.
-    4. Run the application using `docker-compose up -d`.
+* Flask
+* python-dotenv
+* flask-cors
+* requests
+* beautifulsoup4
 
-## How to Use
 
-* Once you have the project set up, you can start using it in the following ways:
-    1. Access the application through your web browser by navigating to `http://localhost:5000/`.
-    2. Search for movies by typing in the search bar.
-    3. Filter movies by year using the dropdown menu.
-    4. Click on a movie card to view more details about the movie.
-    5. The application will cache movie data to improve performance. This data is updated every 7 days.
-    6. You can clear the cached data by running the `cleanCache` endpoint.
-    7. You can view the source code of the application in the `app.py` file.
-    8. The Docker Compose configuration is defined in the `docker-compose.yml` file. 
-    9. The HTML templates are located in the `templates` directory.
+### Como Instalar
+
+1. Clonar o repositório.
+2. Instalar dependências: `pip install -r requirements.txt`
+3. Criar um arquivo `.env` com as variáveis de ambiente necessárias (chave da API TMDB, etc.).
+4. Executar a aplicação: `docker-compose up -d` (assumindo uso de Docker Compose).
+
+
+### Como Usar
+
+A aplicação web fornece endpoints para: verificação de integridade, busca de filmes, visualização de todos os filmes, visualização de um filme específico e limpeza do cache.  A interface HTML permite busca por título e ano.
+
+### Arquitetura
+
+A aplicação utiliza uma arquitetura cliente-servidor. O backend (Flask) processa as requisições, interage com a API TMDB e o cache, e retorna dados para a interface do usuário.  A interface HTML usa JavaScript para interações dinâmicas e armazenamento em localStorage. O Docker Compose é utilizado para orquestração de containers.
+
+
+### Pipeline
+
+1. Requisição do cliente.
+2. Roteamento (Flask).
+3. Processamento de dados (busca em cache ou API, limpeza de dados).
+4. Geração da resposta (HTML ou JSON).
+5. Retorno da resposta ao cliente.
+6. Armazenamento em cache (opcional).
+                
+                
